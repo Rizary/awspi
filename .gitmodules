@@ -1,0 +1,21 @@
+[submodule "deps/reflex-dom"]
+	path = deps/reflex-dom
+	url = https://github.com/reflex-frp/reflex-dom.git
+	branch = jsaddle
+[submodule "deps/reflex"]
+	path = deps/reflex
+	url = https://github.com/reflex-frp/reflex.git
+	branch = jsaddle
+[submodule "deps/reflex-dom-contrib"]
+	path = deps/reflex-dom-contrib
+	url = https://github.com/reflex-frp/reflex-dom-contrib.git
+	branch = jsaddle
+[submodule "deps/jsaddle"]
+	path = deps/jsaddle
+	url = https://github.com/ghcjs/jsaddle.git
+[submodule "deps/dependent-sum-template"]
+	path = deps/dependent-sum-template
+	url = https://github.com/mokus0/dependent-sum-template.git
+[submodule "deps/text"]
+	path = deps/text
+	url = https://github.com/bos/text.git

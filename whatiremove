@@ -1,0 +1,24 @@
+executable sortableList
+  build-depends: base
+               , containers
+               , dependent-map
+               , lens
+               , mtl
+               , random
+               , reflex
+               , reflex-dom
+               , text
+               , time
+               , transformers
+  hs-source-dirs: examples
+  main-is: sortableList.hs
+  ghc-options: -Wall -fwarn-tabs -funbox-strict-fields -O2 -ferror-spans
+  ghc-prof-options: -fprof-auto
+  if !flag(build-examples)
+    buildable: False
+  if flag(expose-all-unfoldings)
+    ghc-options: -fexpose-all-unfoldings
+  if flag(use-reflex-optimizer)
+    ghc-options: -fplugin=Reflex.Optimizer
+
+in reflex-dom-core.cabal
