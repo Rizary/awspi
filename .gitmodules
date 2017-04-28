@@ -19,3 +19,6 @@
 [submodule "deps/text"]
 	path = deps/text
 	url = https://github.com/bos/text.git
+[submodule "deps/cabal-macosx"]
+	path = deps/cabal-macosx
+	url = https://github.com/danfran/cabal-macosx.git

@@ -21,6 +21,6 @@ main = defaultMainWithHooks $ simpleUserHooks
 #if !defined(ghcjs_HOST_OS) && defined(MIN_VERSION_cabal_macosx)
        {
           postBuild = appBundleBuildHook guiApps,
-	  postCopy = appBundleCopyHook guiApps
+          postCopy = appBundleCopyHook guiApps
        }
 #endif

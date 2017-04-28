@@ -12,6 +12,7 @@ packages:
   deps/jsaddle/jsaddle-wkwebview/
   deps/text/
   deps/dependent-sum-template/
+  deps/cabal-macosx
 
 constraints:
      aeson < 1.1.0.0
