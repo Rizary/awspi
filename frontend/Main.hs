@@ -43,17 +43,13 @@ import GI.Gtk.Objects.Container (containerAdd)
 import GI.Gtk.Enums (Orientation (..), WindowType(..))
 import qualified Data.Text as T (length)
 import Language.Javascript.JSaddle.WebKitGtk
-import Frontend.Types
+-- import Frontend.Types
 --------------------------------------------------------------------------------
 -- View
 --------------------------------------------------------------------------------
 
 main :: IO()
 main = withMenu mainWk
-
-
-
-
 
 {-|
   runInWebView mainMenu (WebView [])

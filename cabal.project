@@ -13,7 +13,6 @@ packages:
   deps/jsaddle/jsaddle-webkit2gtk/
   deps/text/
   deps/dependent-sum-template/
-  deps/haskell-gi/
 
 constraints:
      aeson < 1.1.0.0

@@ -1,0 +1,10 @@
+
+library
+  hs-source-dirs: Lib
+  build-depends:
+    base  >=4.7 && <5
+  exposed-modules:
+    Frontend.Types
+  -- ghc-prof-options: -fprof-auto
+  ghc-options: -Wall -fwarn-tabs 
+  default-language: Haskell2010
