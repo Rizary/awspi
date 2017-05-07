@@ -12,13 +12,17 @@ packages:
   deps/jsaddle/jsaddle-wkwebview/
   deps/text/
   deps/dependent-sum-template/
-  deps/cabal-macosx
+
+extra-lib-dirs:
+  /opt/local/lib/
 
 constraints:
      aeson < 1.1.0.0
    , directory < 1.3.0.0
+   , lens < 4.15.2
 
-
+package reflex-dom-core
+  flags: -build-examples
 
 
 
