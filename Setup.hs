@@ -10,7 +10,11 @@ guiApps = [
     MacApp "awspi-frontend"
       Nothing
       (Just "macos/Info.plist")
-      []
+      [
+        "resources/static/stylesheet/simple.css"
+      , "resources/index.html"
+      , "resources/static/svg/ec2.svg"
+      ]
       []
       DoNotChase
    ]

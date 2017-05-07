@@ -21,4 +21,7 @@
 	url = https://github.com/bos/text.git
 [submodule "deps/cabal-macosx"]
 	path = deps/cabal-macosx
-	url = https://github.com/danfran/cabal-macosx.git
+	url = https://github.com/Rizary/cabal-macosx.git
+[submodule "deps/haskell-gi"]
+	path = deps/haskell-gi
+	url = https://github.com/haskell-gi/haskell-gi.git

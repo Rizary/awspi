@@ -51,10 +51,6 @@ import Frontend.Types
 main :: IO()
 main = withMenu mainWk
 
-
-
-
-
 {-|
   runInWebView mainMenu (WebView [])
   runFile "index.html" ""  mainWk

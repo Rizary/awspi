@@ -11,7 +11,7 @@ author:              Andika D Riyandi
 maintainer:          andika.riyan@gmail.com
 -- copyright:           
 category:            Web
-build-type:          Custom
+build-type:          Simple
 extra-source-files:  ChangeLog.md, README.md
 cabal-version:       >=1.10
 
@@ -23,26 +23,48 @@ flag awspi-backend
   description: Build backend awspi app using snap framework
   default: True
 
-custom-setup
-  setup-depends: base >= 4.6
-               , Cabal >= 1.24.2 && < 1.25
-               , cabal-macosx >= 0.2.3.4 && < 0.3
+flag awspi-dev
+  description: Build in development mode
+  default: False
 
+library
+  hs-source-dirs: Lib
+  build-depends:
+    base  >=4.7 && <5
+  exposed-modules:
+    Frontend.Types
+  ghc-prof-options: -fprof-auto
+  ghc-options: -Wall -fwarn-tabs -funbox-strict-fields -02
+  default-language: Haskell2010
+  
 executable awspi-frontend
   main-is:             Main.hs
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <5
+                     , cabal-macosx >= 0.2.3.4 && < 0.3
                      , reflex
                      , reflex-dom
+                     , reflex-dom-contrib
                      , containers == 0.5.7.1
                      , safe >= 0.3.10
                      , text >= 1.2.2.1
                      , jsaddle-wkwebview
-                     , ghcjs-dom	     
-
+                     , jsaddle-webkit2gtk
+                     , ghcjs-dom
+                     , haskell-gi
+                     , gi-glib
+                     , gi-gtk
+                     , gi-gtk-hs
+                     , gi-webkit2
+                     , transformers
+                     , awspi
+		     
   hs-source-dirs:      frontend
   default-language:    Haskell2010
-  ghc-options:         -threaded -Wall -fwarn-tabs -funbox-strict-fields -rtsopts -with-rtsopts=-N -O2
+  if !flag(awspi-dev)
+    ghc-options:  -threaded
+  if flag(awspi-dev)
+    ghc-options:     -threaded -Wall -fwarn-tabs -funbox-strict-fields -rtsopts -with-rtsopts=-N -O2
   if !flag(awspi-frontend)
     buildable: False
