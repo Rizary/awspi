@@ -10,6 +10,7 @@ import           Data.Foldable
 import           Data.Monoid ((<>))
 import           Data.Text (Text)
 import qualified Data.Text                 as T
+import qualified Data.Maybe                as Maybe
 
 import GHCJS.DOM.Types (JSM)
 
@@ -26,7 +27,7 @@ import Frontend.Types
 -- View
 --------------------------------------------------------------------------------
 
-main :: IO()
+main :: IO ()
 main = runFile "index.html" "" mainWk
 
 mainWk :: JSM ()
@@ -35,7 +36,7 @@ mainWk = mainWidgetWithHead headElement bodyElement
 headElement :: MonadWidget t m => m ()
 headElement = do
   el "title" $ text "AWS Simulator"
-  styleSheet "css/simple.css"
+  styleSheet "static/stylesheet/simple.css"
  where
     styleSheet link = elAttr "link" (Map.fromList [
         ("rel", "stylesheet")

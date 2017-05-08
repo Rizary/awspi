@@ -23,6 +23,10 @@ flag awspi-backend
   description: Build backend awspi app using snap framework
   default: True
 
+flag awspi-dev
+  description: Build in development mode
+  default: False
+
 custom-setup
   setup-depends: base >= 4.6
                , Cabal >= 1.24.2 && < 1.25
@@ -42,8 +46,10 @@ executable awspi-frontend
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <5
+                     , cabal-macosx >= 0.2.3.4 && < 0.3
                      , reflex
                      , reflex-dom
+                     , reflex-dom-contrib
                      , containers == 0.5.7.1
                      , safe >= 0.3.10
                      , text >= 1.2.2.1
