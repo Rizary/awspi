@@ -54,7 +54,9 @@ executable awspi-frontend
                      , safe >= 0.3.10
                      , text >= 1.2.2.1
                      , jsaddle-wkwebview
+                     , jsaddle
                      , ghcjs-dom
+                     , ref-tf
                      , awspi
 
   hs-source-dirs:      frontend

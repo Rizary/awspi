@@ -11,8 +11,9 @@ import           Data.Monoid ((<>))
 import           Data.Text (Text)
 import qualified Data.Text                 as T
 import qualified Data.Maybe                as Maybe
+import           Control.Monad.Ref (MonadRef(..))
 
-import GHCJS.DOM.Types (JSM)
+import GHCJS.DOM.Types (JSM, File, Element(..))
 
 import Reflex
 import Reflex.Dom.Core
@@ -22,6 +23,7 @@ import Reflex.Dom.Contrib.Widgets.ButtonGroup
 import Data.Text.Encoding (encodeUtf8)
 import Debug.Trace (trace)
 import Language.Javascript.JSaddle.WKWebView (run, runFile)
+import Language.Javascript.JSaddle.Types (MonadJSM, liftJSM)
 import Frontend.Types
 --------------------------------------------------------------------------------
 -- View
@@ -67,7 +69,7 @@ bodyElement = elClass "div" "mainBody" $ do
   readingValue
   testTextArea
   testCheckBox
-  -- radioButton
+  radioButton
   dropDown
   rangeWidget
   
@@ -216,7 +218,7 @@ checkedState :: Bool -> T.Text
 checkedState True = "Checkbox is checked"
 checkedState _    = "Checkbox is not checked"
 
-{-| radioButton :: MonadWidget t m => m ()
+radioButton :: MonadWidget t m => m ()
 radioButton = do
   el "h2" $ text "Radio Buttons from Contrib Library"
   rec
@@ -226,18 +228,21 @@ radioButton = do
 	  (constDyn [(Small, "small"), (Medium, "Medium"), (Large, "LARGE")])
           WidgetConfig { _widgetConfig_initialValue = Nothing
                        , _widgetConfig_setValue     = never
-                       , _widgetConfig_attributes   = constDyn mempty}
+                       , _widgetConfig_attributes   = constDyn mempty
+                       }
     text "Result: "
     display (translate <$> _hwidget_value rbs)
   return ()
+  
 data Selection = Small | Medium | Large 
   deriving Eq
+  
 translate :: Maybe Selection -> T.Text
 translate Nothing = "0"
 translate (Just Small) = "10"
 translate (Just Medium) = "50"
 translate (Just Large) = "800"
--}
+
 
 dropDown :: MonadWidget t m => m ()
 dropDown = do
