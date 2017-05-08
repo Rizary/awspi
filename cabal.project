@@ -9,14 +9,14 @@ packages:
   deps/reflex-dom-contrib/
   deps/reflex-dom/reflex-dom/
   deps/reflex-dom/reflex-dom-core/
-  deps/jsaddle/jsaddle-wkwebview/
+  deps/jsaddle/jsaddle/
   deps/jsaddle/jsaddle-webkit2gtk/
   deps/text/
   deps/dependent-sum-template/
 
 constraints:
      aeson < 1.1.0.0
-   , directory < 1.3.0.0
+   -- , directory < 1.3.0.0
 
 
 package gi-atk

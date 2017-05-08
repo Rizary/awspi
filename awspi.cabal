@@ -32,16 +32,16 @@ executable awspi-frontend
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <5
-                     , cabal-macosx >= 0.2.3.4 && < 0.3
                      , reflex
                      , reflex-dom
                      , reflex-dom-contrib
                      , containers == 0.5.7.1
                      , safe >= 0.3.10
                      , text >= 1.2.2.1
-                     , jsaddle-wkwebview
                      , jsaddle-webkit2gtk
                      , ghcjs-dom
+                     , haskell-gi
+                     , gtk2hs-buildtools
                      , gi-glib
                      , gi-gtk
                      , gi-gtk-hs
@@ -55,4 +55,4 @@ executable awspi-frontend
   if flag(awspi-dev)
     ghc-options:     -threaded -Wall -fwarn-tabs -funbox-strict-fields -rtsopts -with-rtsopts=-N -O2
   if !flag(awspi-frontend)
-    buildable: False
+    buildable: True

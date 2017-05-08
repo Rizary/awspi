@@ -51,11 +51,6 @@ import Language.Javascript.JSaddle.WebKitGtk
 main :: IO()
 main = withMenu mainWk
 
-{-|
-  runInWebView mainMenu (WebView [])
-  runFile "index.html" ""  mainWk
--}
-
 mainWk :: JSM ()
 mainWk = mainWidget bodyElement
 
