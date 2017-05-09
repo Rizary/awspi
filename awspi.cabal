@@ -16,7 +16,7 @@ extra-source-files:  ChangeLog.md, README.md
 cabal-version:       >=1.10
 
 flag awspi-frontend
-  description: Build frontend awspi app using wkwebview
+  description: Build frontend awspi app using jsaddle
   default: True
 
 flag awspi-backend
@@ -33,26 +33,30 @@ executable awspi-frontend
   -- other-extensions:    
   build-depends:       base >=4.7 && <5
                      , reflex
-                     , reflex-dom
-                     , reflex-dom-contrib
+                     , reflex-dom-core
                      , containers == 0.5.7.1
                      , safe >= 0.3.10
                      , text >= 1.2.2.1
                      , jsaddle-webkit2gtk
                      , ghcjs-dom
-                     , haskell-gi
-                     , gtk2hs-buildtools
+                     , gi-gobject
+                     , gi-gio
+                     , gi-cairo
+                     , gi-pango
                      , gi-glib
                      , gi-gtk
                      , gi-gtk-hs
                      , gi-webkit2
+                     , gi-gtkosxapplication
                      , transformers
             	     
   hs-source-dirs:      frontend
   default-language:    Haskell2010
   if !flag(awspi-dev)
     ghc-options:  -threaded
+    
   if flag(awspi-dev)
     ghc-options:     -threaded -Wall -fwarn-tabs -funbox-strict-fields -rtsopts -with-rtsopts=-N -O2
-  if !flag(awspi-frontend)
+    
+  if flag(awspi-frontend)
     buildable: True

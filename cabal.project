@@ -4,11 +4,10 @@ compiler: ghc
 flags: -overloaded-methods -overloaded-signals -overloaded-properties
 
 packages:
-  ./
+  ./awspi.cabal
   deps/reflex/
-  deps/reflex-dom-contrib/
-  deps/reflex-dom/reflex-dom/
   deps/reflex-dom/reflex-dom-core/
+  deps/haskell-gi/
   deps/jsaddle/jsaddle/
   deps/jsaddle/jsaddle-webkit2gtk/
   deps/text/
@@ -46,8 +45,6 @@ package gi-javascriptcore
 package gi-pango
  flags: -overloaded-methods -overloaded-signals -overloaded-properties
 package gi-soup
- flags: -overloaded-methods -overloaded-signals -overloaded-properties
-package gi-webkit
  flags: -overloaded-methods -overloaded-signals -overloaded-properties
 package gi-webkit2
  flags: -overloaded-methods -overloaded-signals -overloaded-properties

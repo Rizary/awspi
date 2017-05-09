@@ -25,3 +25,6 @@
 [submodule "deps/haskell-gi"]
 	path = deps/haskell-gi
 	url = https://github.com/haskell-gi/haskell-gi.git
+[submodule "deps/webkit-javascriptcore"]
+	path = deps/webkit-javascriptcore
+	url = https://github.com/gtk2hs/webkit-javascriptcore.git
