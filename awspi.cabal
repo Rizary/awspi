@@ -42,6 +42,7 @@ executable awspi-frontend
                      , jsaddle-webkit2gtk
                      , ghcjs-dom
                      , gi-gobject
+                     , haskell-gi-base
                      , gi-gio
                      , gi-cairo
                      , gi-pango

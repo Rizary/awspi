@@ -1,4 +1,4 @@
--- with-compiler: /usr/local/bin/ghc
+with-compiler: /usr/local/bin/ghc
 compiler: ghc
 
 flags: -overloaded-methods -overloaded-signals -overloaded-properties
@@ -7,15 +7,7 @@ packages:
   ./awspi.cabal
   deps/reflex/
   deps/reflex-dom/reflex-dom-core/
---  deps/haskell-gi/
---  deps/jsaddle/jsaddle/
---  deps/jsaddle/jsaddle-webkit2gtk/
---  deps/text/
   deps/dependent-sum-template/
-
--- constraints:
-   --  aeson < 1.1.0.0
-   -- , directory < 1.3.0.0
 
 
 package gi-atk
