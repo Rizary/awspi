@@ -32,6 +32,8 @@ executable awspi-frontend
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <5
+                     , unix
+                     , directory
                      , reflex
                      , reflex-dom-core
                      , containers == 0.5.7.1
