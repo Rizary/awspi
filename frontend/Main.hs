@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, RecursiveDo, ScopedTypeVariables, FlexibleContexts, TypeFamilies, ConstraintKinds, PatternSynonyms #-}
+{-# LANGUAGE CPP, OverloadedStrings, RecursiveDo, ScopedTypeVariables, FlexibleContexts, TypeFamilies, ConstraintKinds, PatternSynonyms, LambdaCase #-}
 
 import Prelude hiding (mapM, mapM_, all, sequence)
 
@@ -18,7 +18,6 @@ import Reflex
 import Reflex.Dom.Core
 import Data.Text.Encoding (encodeUtf8)
 import Debug.Trace (trace)
-import Language.Javascript.JSaddle.WKWebView (run, runFile)
 
 -- This import is taken from gi-gtk-examples
 import qualified GI.Gtk.Functions as GI (main, init)
@@ -38,9 +37,21 @@ import GI.Gtk.Objects.TextView (textViewNew)
 import GI.Gtk.Objects.Box (boxNew, boxPackStart, setBoxHomogeneous)
 import GI.Gtk.Objects.Container (containerAdd)
 import GI.Gtk.Enums (Orientation (..), WindowType(..))
+import GI.Gtk
+       (windowSetPosition, windowSetDefaultSize, windowNew,
+        scrolledWindowNew, noAdjustment, containerAdd,
+        WindowType(..), WindowPosition(..), widgetDestroy,
+        widgetGetToplevel, widgetShowAll, onWidgetDestroy,
+        mainQuit)
+import Graphics.UI.Gtk.WebKit.JavaScriptCore.JSBase
+       (JSValueRef, JSContextRef)
+import Graphics.UI.Gtk.WebKit.JavaScriptCore.JSStringRef
+       (jsstringgetcharactersptr, jsstringgetlength, jsstringrelease)
+import Graphics.UI.Gtk.WebKit.JavaScriptCore.JSValueRef
+       (jsvaluetostringcopy)
+import GI.WebKit2
 import qualified Data.Text as T (length)
-import Language.Javascript.JSaddle.WebKitGtk
--- import Frontend.Types
+import Language.Javascript.JSaddle.WebKitGTK
 --------------------------------------------------------------------------------
 -- View
 --------------------------------------------------------------------------------
@@ -430,7 +441,7 @@ withMenu = do
   pwd <- getCurrentDirectory
   void . onWebViewLoadChanged webView $ \case
       LoadEventFinished -> runInWebView main webView
-      _ -> return ()
+      _                 -> return ()
   webViewLoadHtml  webView "" . Just $ "file://" <> T.pack pwd <> "/"
   installQuitHandler webView
 
@@ -448,3 +459,15 @@ withMenu = do
 
 __ :: Text -> Text
 __ = id
+
+
+quitWebView :: WebView -> IO ()
+quitWebView wv = postGUIAsync $ do w <- widgetGetToplevel wv --TODO: Shouldn't this be postGUISync?
+                                   widgetDestroy w
+
+installQuitHandler :: WebView -> IO ()
+#ifdef mingw32_HOST_OS
+installQuitHandler wv = return () -- TODO: Maybe figure something out here for Windows users.
+#else
+installQuitHandler wv = void $ installHandler keyboardSignal (Catch (quitWebView wv)) Nothing
+#endif
