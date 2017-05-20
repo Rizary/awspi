@@ -14,6 +14,16 @@ guiApps = [
         "resources/static/stylesheet/simple.css"
       , "resources/index.html"
       , "resources/static/svg/ec2.svg"
+      , "resources/static/svg/AmazonCloudFront.png"
+      , "resources/static/svg/AmazonCloudWatch.png"
+      , "resources/static/svg/AmazonDynamoDB.png"
+      , "resources/static/svg/AmazonEC2.png"
+      , "resources/static/svg/AmazonElasticCache.png"
+      , "resources/static/svg/AmazonLightsail.png"
+      , "resources/static/svg/AmazonRDS.png"
+      , "resources/static/svg/AmazonRoute53.png"
+      , "resources/static/svg/AmazonS3.png"
+      , "resources/static/svg/AmazonVPC.png"
       ]
       []
       DoNotChase

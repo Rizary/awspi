@@ -49,12 +49,12 @@ executable awspi-frontend
                      , cabal-macosx >= 0.2.3.4 && < 0.3
                      , reflex
                      , reflex-dom
+                     , jsaddle
                      , reflex-dom-contrib
                      , containers == 0.5.7.1
                      , safe >= 0.3.10
                      , text >= 1.2.2.1
                      , jsaddle-wkwebview
-                     , jsaddle
                      , ghcjs-dom
                      , ref-tf
                      , awspi

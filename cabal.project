@@ -1,4 +1,4 @@
-with-compiler: /usr/local/bin/ghc
+-- with-compiler: /usr/local/bin/ghc
 compiler: ghc
 
 flags: -overloaded-methods -overloaded-signals -overloaded-properties
@@ -13,13 +13,8 @@ packages:
   deps/jsaddle/jsaddle-wkwebview/
   deps/text/
   deps/dependent-sum-template/
-  
+
+
 constraints:
-     aeson < 1.1.0.0
-   , directory < 1.3.0.0
-
-package reflex-dom-core
-  flags: -build-examples
-
-
-
+    aeson < 1.1.0.0
+  , directory < 1.3.0.0

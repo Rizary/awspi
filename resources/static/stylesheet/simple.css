@@ -1,3 +1,125 @@
-h1 {
-  color: Green;
+html {
+  width: 1172px;
+  height: 876px;
 }
+body {
+  width: 1172px;
+  height: 876px;
+  overflow: hidden;
+}
+
+.container{
+  position: fixed;
+  display: flex;
+  display: -webkit-flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  align-content: flex-start;
+  width: 1172px;
+  height: 876px;
+}
+
+.middleMenu {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  width: 842px;
+  height: 876px;
+}
+
+label {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  border-radius: 25px;
+  width: 413px;
+  height: 170px;
+  vertical-align: left;
+}
+
+label:hover {
+  background-color: hsla(171,100%,84%,1);
+
+}
+label > img, h2 {
+  margin-left: 32px;
+}
+
+label > img {
+  width: 81px;
+  height: 80px;
+  order: 1;
+  flex: 0 1 50%;
+  align-self: center;
+  margin-top: 16px;
+  margin-right: 16px;
+  margin-bottom: 16px;
+}
+
+
+label > h2 {
+  font-weight: bold;
+  order: 2;
+  flex: 0 1 0%;
+  margin-top: 40px;
+  white-space: nowrap;
+}
+
+label > h4 {
+  color: hsla(339,80%,60%,1);
+  margin-top: -8px;
+  margin-left: 32px;
+  order: 3;
+  flex: 0 1 0%;
+}
+
+label > h2, h4{
+  display: absolute;
+  position: static;
+  vertical-align: left;
+  text-align: left;
+  align-self: flex-start;
+  top: 0px;
+  left: 0px,
+}
+
+
+.rightMenu {
+  display: inline-flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  background: hsla(339,80%,70%,0.5);
+  width: 298px;
+  height: 640px;
+  border-radius: 25px;
+
+}
+
+.rightMenu > h2 {
+  position: relative;
+  color: hsla(339,80%,60%,1);
+  margin-top: 16px;
+  margin-left: 16px;
+  font-weight: bold;
+  text-align: left;
+
+}
+
+.summaryMenu {
+  display: inline-flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  background: hsla(124,96%,64%,0.3);
+  width: 298px;
+  height: 208px;
+  border-radius: 25px;
+}
+
+

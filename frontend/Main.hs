@@ -24,7 +24,7 @@ import Data.Text.Encoding (encodeUtf8)
 import Debug.Trace (trace)
 import Language.Javascript.JSaddle.WKWebView (run, runFile)
 import Language.Javascript.JSaddle.Types (MonadJSM, liftJSM)
-import Frontend.Types
+-- import Frontend.Types
 --------------------------------------------------------------------------------
 -- View
 --------------------------------------------------------------------------------
@@ -46,10 +46,180 @@ headElement = do
       , ("href", link)
      ]) $ return ()
 
-test = Node "Andika"
-
 bodyElement :: MonadWidget t m => m ()
-bodyElement = elClass "div" "mainBody" $ do
+bodyElement = elClass "div" "container" $ do
+  rec
+-- Menu utama pemilihan jasa AWS yang paling umum digunakan
+    elClass "div" "middleMenu" $ do
+      rec
+        ec2 <- serviceButton "Amazon EC2" EC2 dynAttrs testText1
+        s3 <- serviceButton "Amazon S3" S3 dynAttrs testText1
+        r53 <- serviceButton "Route 53" R53 dynAttrs testText1
+        cf <- serviceButton "CloudFront" CF dynAttrs testText1
+        rds <- serviceButton "Amazon RDS" RDS dynAttrs testText1
+        db <- serviceButton "DynamoDB" DB dynAttrs testText1
+        ec <- serviceButton "Elastic Cache" EC dynAttrs testText1
+        cw <- serviceButton "CloudWatch" CW dynAttrs testText1
+        vpc <- serviceButton "Amazon VPC" VPC dynAttrs testText1
+        ls <- serviceButton "Amazon Lightsail" LS dynAttrs testText1
+        dynBool <- toggle False $ leftmost [ ec2, s3, r53, cf, rds, db, ec, cw, vpc, ls]
+        let dynAttrs = labelAttrs <$> dynBool
+      return ()
+-- Menu Properti dari masing-masing jasa AWS yang sedang aktif
+    elClass "div" "rightMenu" $ do
+     el "h2" $ text "Properties: "
+      -- elDynClass "div" awsPropAttrs $ do
+        
+
+
+-- Menu summary berupa hasil perhitungan final dari semua jasa AWS
+    elClass "div" "summaryMenu" $ do
+     el "h2" $ text "Summary: "
+  return ()
+  
+
+
+-----
+-- Right Bar
+-----
+awsPropAttrs :: Map.Map T.Text T.Text
+awsPropAttrs = undefined
+
+
+serviceProperties = undefined
+
+simulateResults = undefined
+
+
+-----
+-- Middle Menu (Icon Selector)
+-----
+
+-----
+-- Summary Bar (Icon Selector)
+-----
+
+-----
+-- AWS Related Function
+-----
+imgAttrs :: AwsIcon -> Map.Map T.Text T.Text
+imgAttrs awi = ("src" =: (iconName awi)) <>
+               ("width" =: "81") <>
+	       ("height" =: "80")
+
+idAttrs :: AwsIcon -> Map.Map T.Text T.Text
+idAttrs awi = ("id" =: T.pack (show awi))
+
+
+iconName :: AwsIcon -> T.Text
+iconName awi =
+  case awi of
+    CF  -> "static/svg/AmazonCloudFront.png"
+    CW  -> "static/svg/AmazonCloudWatch.png"
+    DB  -> "static/svg/AmazonDynamoDB.png"
+    EC2 -> "static/svg/AmazonEC2.png"
+    EC  -> "static/svg/AmazonElasticCache.png"
+    LS  -> "static/svg/AmazonLightsail.png"
+    RDS -> "static/svg/AmazonRDS.png"
+    R53 -> "static/svg/AmazonRoute53.png"
+    S3  -> "static/svg/AmazonS3.png"
+    VPC  -> "static/svg/AmazonVPC.png"
+    _ -> ""
+
+data AwsIcon = CF | CW | DB | EC2 | EC | LS | RDS | R53 | S3 | VPC
+  deriving (Eq, Show, Ord)
+
+
+calculatedPrice = undefined
+
+blanks :: forall m. Monad m => m ()
+blanks = return ()
+
+
+labelAttrs :: Bool -> Map.Map T.Text T.Text
+labelAttrs b = "style" =: ("background-color: " <> color b)
+  where
+    color True = "hsla(171,100%,84%,1)"
+    color _    = "transparent"
+
+serviceButton :: (MonadWidget t m) => T.Text
+                                   -> AwsIcon
+				   -> Dynamic t (Map.Map T.Text T.Text)
+				   -> Dynamic t T.Text
+				   -> m (Event t AwsIcon)
+serviceButton label icon dynAttrs dynCost = do
+    (ev1,_) <- elDynAttr' "label" ((constDyn $ idAttrs icon) <> dynAttrs) $ do
+            elAttr' "img" (imgAttrs icon) $ text ""
+            el "h2" $ text label
+	    let text1 = constDyn "Monthly Cost: $ "
+            el "h4" $ dynText $ text1 <> dynCost
+    return $ icon <$ (domEvent Click ev1)
+
+testText1 :: Reflex t => Dynamic t T.Text
+testText1 = constDyn "0"
+
+
+
+
+{-|
+
+el "label" $ do
+        elAttr "img" (imgAttrs EC2) $ text ""
+        el "h2" $ text "Amazon EC2"
+	el "br" blanks
+        el "h4" $ text "Monthly Cost: $ "
+      el "label" $ do
+        elAttr "img" (imgAttrs S3) $ text ""
+        el "h2" $ text "Amazon S3"
+	el "br" blanks
+        el "h4" $ text "Monthly Cost: $ "
+      el "label" $ do
+        elAttr "img" (imgAttrs R53) $ text ""
+        el "h2" $ text "Route 53"
+	el "br" blanks
+        el "h4" $ text "Monthly Cost: $ "
+      el "label" $ do
+        elAttr "img" (imgAttrs CF) $ text ""
+        el "h2" $ text "CloudFront"
+	el "br" blanks
+        el "h4" $ text "Monthly Cost: $ "
+      el "label" $ do
+        elAttr "img" (imgAttrs RDS) $ text ""
+        el "h2" $ text "Amazon RDS"
+	el "br" blanks
+        el "h4" $ text "Monthly Cost: $ "
+      el "label" $ do
+        elAttr "img" (imgAttrs DB) $ text ""
+        el "h2" $ text "DynamoDB"
+	el "br" blanks
+        el "h4" $ text "Monthly Cost: $ "
+      el "label" $ do
+        elAttr "img" (imgAttrs EC) $ text ""
+        el "h2" $ text "Elastic Cache"
+	el "br" blanks
+        el "h4" $ text "Monthly Cost: $ "
+      el "label" $ do
+        elAttr "img" (imgAttrs CW) $ text ""
+        el "h2" $ text "CloudWatch"
+	el "br" blanks
+        el "h4" $ text "Monthly Cost: $ "
+      el "label" $ do
+        elAttr "img" (imgAttrs VPC)$ text ""
+        el "h2" $ text "Amazon VPC"
+	el "br" blanks
+        el "h4" $ text "Monthly Cost: $ "
+      el "label" $ do
+        elAttr "img" (imgAttrs LS) $ text ""
+        el "h2" $ text "Amazon LightSail"
+	el "br" blanks
+        el "h4" $ text "Monthly Cost: $ "
+
+
+
+
+
+
+
   el "h1" $ text "Welcome to AWS Simulation Tools"
   el "div" $ do
     el "p" $ text "This application is used for:"
@@ -282,59 +452,4 @@ rangeWidget = do
   el "p" blank
   display $ _rangeInput_value rg2
   return ()
-
-  
------
--- Bottom Menu
------
-
-iconServiceGroups = undefined
-
-eachGroupMembers = undefined
-
-otherIconTools = undefined
-
-simulateRealTime = undefined
-
-
-
-
-
------
--- Right Menu
------
-
-serviceProperties = undefined
-
-simulateResults = undefined
-
-
-
-
-
------
--- Middle Menu (SVG)
------
-
-
-
-
-
-
-
-
------
--- AWS Related Function
------
-
-calculatedPrice = undefined
-
-blanks :: forall m. Monad m => m ()
-blanks = return ()
-
-
-
-
-
-
-
+-}
