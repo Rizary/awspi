@@ -50,48 +50,61 @@ bodyElement :: MonadWidget t m => m ()
 bodyElement = elClass "div" "container" $ do
   rec
 -- Menu utama pemilihan jasa AWS yang paling umum digunakan
-    elClass "div" "middleMenu" $ do
-      rec
-        ec2 <- serviceButton "Amazon EC2" EC2 ec2dynAttrs testText1
-        s3 <- serviceButton "Amazon S3" S3 s3dynAttrs testText1
-        r53 <- serviceButton "Route 53" R53 r53dynAttrs testText1
-        cf <- serviceButton "CloudFront" CF cfdynAttrs testText1
-        rds <- serviceButton "Amazon RDS" RDS rdsdynAttrs testText1
-        db <- serviceButton "DynamoDB" DB dbddynAttrs testText1
-        ec <- serviceButton "Elastic Cache" EC ecdynAttrs testText1
-        cw <- serviceButton "CloudWatch" CW cwdynAttrs testText1
-        vpc <- serviceButton "Amazon VPC" VPC vpcdynAttrs testText1
-        ls <- serviceButton "Amazon Lightsail" LS lsdynAttrs testText1
-        ec2dynBool <- toggle False ec2
-	s3dynBool  <- toggle False s3
-	r53dynBool <- toggle False r53
-	cfdynBool  <- toggle False cf
-	rdsdynBool <- toggle False rds
-	dbdynBool  <- toggle False db
-	ecdynBool  <- toggle False ec
-	cwdynBool  <- toggle False cw
-	vpcdynBool <- toggle False vpc
-	lsdynBool  <- toggle False ls
-	
-        let ec2dynAttrs = labelAttrs <$> ec2dynBool
-	    s3dynAttrs = labelAttrs <$> s3dynBool
-	    r53dynAttrs = labelAttrs <$> r53dynBool
-	    cfdynAttrs = labelAttrs <$> cfdynBool
-	    rdsdynAttrs = labelAttrs <$> rdsdynBool
-	    dbddynAttrs = labelAttrs <$> dbdynBool
-	    ecdynAttrs = labelAttrs <$> ecdynBool
-	    cwdynAttrs = labelAttrs <$> cwdynBool
-	    vpcdynAttrs = labelAttrs <$> vpcdynBool
-	    lsdynAttrs = labelAttrs <$> lsdynBool
-	    
-      return ()
+    midM <- elClass "div" "middleMenu" $ do
+             rec
+              ec2 <- serviceButton "Amazon EC2" EC2 ec2dynAttrs testText1
+              s3  <- serviceButton "Amazon S3" S3 s3dynAttrs testText1
+              r53 <- serviceButton "Route 53" R53 r53dynAttrs testText1
+              cf  <- serviceButton "CloudFront" CF cfdynAttrs testText1
+              rds <- serviceButton "Amazon RDS" RDS rdsdynAttrs testText1
+              db  <- serviceButton "DynamoDB" DB dbddynAttrs testText1
+              ec  <- serviceButton "Elastic Cache" EC ecdynAttrs testText1
+              cw  <- serviceButton "CloudWatch" CW cwdynAttrs testText1
+              vpc <- serviceButton "Amazon VPC" VPC vpcdynAttrs testText1
+              ls  <- serviceButton "Amazon Lightsail" LS lsdynAttrs testText1
+
+              let 
+	          ec2dynAttrs = labelAttrs <$> curSelect dynSelect EC2
+	          s3dynAttrs  = labelAttrs <$> curSelect dynSelect S3
+	          r53dynAttrs = labelAttrs <$> curSelect dynSelect R53
+	          cfdynAttrs  = labelAttrs <$> curSelect dynSelect CF
+	          rdsdynAttrs = labelAttrs <$> curSelect dynSelect RDS
+	          dbddynAttrs = labelAttrs <$> curSelect dynSelect DB
+	          ecdynAttrs  = labelAttrs <$> curSelect dynSelect EC
+	          cwdynAttrs  = labelAttrs <$> curSelect dynSelect CW
+	          vpcdynAttrs = labelAttrs <$> curSelect dynSelect VPC
+	          lsdynAttrs  = labelAttrs <$> curSelect dynSelect LS
+              dynSelect <- holdDyn Nothing $ Just <$> leftmost [ec2, s3, r53, cf, rds, db, ec, cw, vpc, ls]
+             return dynSelect
+	     
 -- Menu Properti dari masing-masing jasa AWS yang sedang aktif
     elClass "div" "rightMenu" $ do
-     el "h2" $ text "Properties: "
-      -- elDynClass "div" awsPropAttrs $ do
-        
-
-
+     rec
+      el "h2" $ text "Properties: "
+      ec2Prop <- ec2Properties ec2dynAttrs
+      s3Prop  <- s3Properties s3dynAttrs
+      r53Prop  <- r53Properties r53dynAttrs
+      cfProp  <- cfProperties cfdynAttrs
+      rdsProp  <- rdsProperties rdsdynAttrs
+      dbProp  <- dbProperties dbdynAttrs
+      ecProp  <- ecProperties ecdynAttrs
+      cwProp  <- cwProperties cwdynAttrs
+      vpcProp  <- vpcProperties vpcdynAttrs
+      lsProp  <- lsProperties lsdynAttrs
+      
+      let 
+	ec2dynAttrs = showAttrs <$> curSelect midM EC2
+	s3dynAttrs  = showAttrs <$> curSelect midM S3
+	r53dynAttrs = showAttrs <$> curSelect midM R53
+	cfdynAttrs  = showAttrs <$> curSelect midM CF
+	rdsdynAttrs = showAttrs <$> curSelect midM RDS
+	dbdynAttrs  = showAttrs <$> curSelect midM DB
+	ecdynAttrs  = showAttrs <$> curSelect midM EC
+	cwdynAttrs  = showAttrs <$> curSelect midM CW
+        vpcdynAttrs = showAttrs <$> curSelect midM VPC
+	lsdynAttrs  = showAttrs <$> curSelect midM LS
+     return ()	
+ 
 -- Menu summary berupa hasil perhitungan final dari semua jasa AWS
     elClass "div" "summaryMenu" $ do
      el "h2" $ text "Summary: "
@@ -122,6 +135,12 @@ simulateResults = undefined
 -----
 -- AWS Related Function
 -----
+curSelect :: Reflex t => Dynamic t (Maybe AwsIcon) -> AwsIcon -> Dynamic t Bool
+curSelect dA ic = demuxed (demux dA) (Just ic)
+
+styleMap :: T.Text -> Map.Map T.Text T.Text
+styleMap c = "style" =: ("background-color: " <> c)
+
 imgAttrs :: AwsIcon -> Map.Map T.Text T.Text
 imgAttrs awi = ("src" =: (iconName awi)) <>
                ("width" =: "81") <>
@@ -149,12 +168,16 @@ iconName awi =
 data AwsIcon = CF | CW | DB | EC2 | EC | LS | RDS | R53 | S3 | VPC
   deriving (Eq, Show, Ord)
 
-
 calculatedPrice = undefined
 
 blanks :: forall m. Monad m => m ()
 blanks = return ()
 
+showAttrs :: Bool -> Map.Map T.Text T.Text
+showAttrs b = "style" =: ("display: " <> display b)
+  where
+    display True = "inline-flex"
+    display _    = "none"
 
 labelAttrs :: Bool -> Map.Map T.Text T.Text
 labelAttrs b = "style" =: ("background-color: " <> color b)
@@ -175,10 +198,120 @@ serviceButton label icon dynAttrs dynCost = do
             el "h4" $ dynText $ text1 <> dynCost
     return $ icon <$ (domEvent Click ev1)
 
+--- properties attribut dari setiap service
+
+-------
+-- EC2 Properties
+-------
+ec2Properties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+ec2Properties dynAttrs =
+  elDynAttr "div" ((constDyn $ idAttrs EC2) <> dynAttrs) $ do
+   rec
+    el "p" $ text "EC2"
+   return ()
+
+-------
+-- S3 Properties
+-------
+s3Properties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+s3Properties dynAttrs =
+  elDynAttr "div" ((constDyn $ idAttrs S3) <> dynAttrs) $ do
+   rec
+    el "p" $ text "S3"
+   return ()
+
+-------
+-- Route53 Properties
+-------
+
+r53Properties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+r53Properties dynAttrs =
+  elDynAttr "div" ((constDyn $ idAttrs R53) <> dynAttrs) $ do
+   rec
+    el "p" $ text "Route53"
+   return ()
+   
+-------
+-- CloudFront Properties
+-------
+
+cfProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+cfProperties dynAttrs =
+  elDynAttr "div" ((constDyn $ idAttrs CF) <> dynAttrs) $ do
+   rec
+    el "p" $ text "CloudFront"
+   return ()
+   
+-------
+-- Amazon RDS Properties
+-------
+
+rdsProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+rdsProperties dynAttrs =
+  elDynAttr "div" ((constDyn $ idAttrs RDS) <> dynAttrs) $ do
+   rec
+    el "p" $ text "Amazon RDS"
+   return ()
+   
+-------
+-- DynamoDB Properties
+-------
+
+dbProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+dbProperties dynAttrs =
+  elDynAttr "div" ((constDyn $ idAttrs DB) <> dynAttrs) $ do
+   rec
+    el "p" $ text "DynamoDB"
+   return ()
+   
+-------
+-- Elastic Cache Properties
+-------
+
+ecProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+ecProperties dynAttrs =
+  elDynAttr "div" ((constDyn $ idAttrs EC) <> dynAttrs) $ do
+   rec
+    el "p" $ text "ElasticCache"
+   return ()
+   
+-------
+-- CloudWatch Properties
+-------
+
+cwProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+cwProperties dynAttrs =
+  elDynAttr "div" ((constDyn $ idAttrs CW) <> dynAttrs) $ do
+   rec
+    el "p" $ text "CloudWatch"
+   return ()
+   
+-------
+-- Amazon VPC Properties
+-------
+
+vpcProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+vpcProperties dynAttrs =
+  elDynAttr "div" ((constDyn $ idAttrs VPC) <> dynAttrs) $ do
+   rec
+    el "p" $ text "Amazon VPC"
+   return ()
+   
+-------
+-- Amazon LightSail Properties
+-------
+
+lsProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+lsProperties dynAttrs =
+  elDynAttr "div" ((constDyn $ idAttrs LS) <> dynAttrs) $ do
+   rec
+    el "p" $ text "Amazon LightSail"
+   return ()
+
+--------
+
 testText1 :: Reflex t => Dynamic t T.Text
 testText1 = constDyn "0"
-
-
 
 
 {-|
