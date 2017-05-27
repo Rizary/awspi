@@ -111,6 +111,30 @@ label > h2, h4{
 
 }
 
+.rightMenu .rightProp {
+  display: inline-flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  background: white;
+  margin-left: 16px;
+  margin-right: 16px;
+  width: 266px;
+  height: auto;
+}
+
+.rightMenu h4{
+  font-weight: bold;
+  text-align: left;
+  color: hsla(127,65%,30%,1);
+}
+
+.rightMenu p {
+  font-size: 16px;
+  text-align: left;
+}
+
+
 .summaryMenu {
   display: inline-flex;
   flex-direction: column;

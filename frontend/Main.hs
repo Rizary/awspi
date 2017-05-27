@@ -10,6 +10,7 @@ import           Data.Foldable
 import           Data.Monoid ((<>))
 import           Data.Text (Text)
 import qualified Data.Text                 as T
+import qualified Data.Text.Read            as TR
 import qualified Data.Maybe                as Maybe
 import           Control.Monad.Ref (MonadRef(..))
 
@@ -79,8 +80,8 @@ bodyElement = elClass "div" "container" $ do
 	     
 -- Menu Properti dari masing-masing jasa AWS yang sedang aktif
     elClass "div" "rightMenu" $ do
+     el "h2" $ text "Properties: "
      rec
-      el "h2" $ text "Properties: "
       ec2Prop <- ec2Properties ec2dynAttrs
       s3Prop  <- s3Properties s3dynAttrs
       r53Prop  <- r53Properties r53dynAttrs
@@ -149,6 +150,9 @@ imgAttrs awi = ("src" =: (iconName awi)) <>
 idAttrs :: AwsIcon -> Map.Map T.Text T.Text
 idAttrs awi = ("id" =: T.pack (show awi))
 
+rightClassAttrs :: Reflex t => Dynamic t (Map.Map T.Text T.Text)
+rightClassAttrs = constDyn ("class" =: "rightProp")
+
 
 iconName :: AwsIcon -> T.Text
 iconName awi =
@@ -198,6 +202,19 @@ serviceButton label icon dynAttrs dynCost = do
             el "h4" $ dynText $ text1 <> dynCost
     return $ icon <$ (domEvent Click ev1)
 
+
+turnToInt :: TR.Reader Int -> Text -> Int
+turnToInt = (theValue .)
+  where
+    theValue (Right (v,_)) = v
+    theValue (Left _)      = 0
+
+readInt :: Text -> Int
+readInt = turnToInt TR.decimal
+
+toDynText :: (Reflex t, Show a) => Dynamic t a -> Dynamic t Text
+toDynText = ((T.pack . show) <$>)
+
 --- properties attribut dari setiap service
 
 -------
@@ -205,17 +222,27 @@ serviceButton label icon dynAttrs dynCost = do
 -------
 ec2Properties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
 ec2Properties dynAttrs =
-  elDynAttr "div" ((constDyn $ idAttrs EC2) <> dynAttrs) $ do
+  elDynAttr "div" ((constDyn $ idAttrs EC2) <> dynAttrs <> rightClassAttrs) $ do
    rec
-    el "p" $ text "EC2"
+    ec2Instance   
    return ()
+
+ec2Instance :: (Reflex t, MonadWidget t m) => m ()
+ec2Instance = do
+  el "h4" $ text "EC2 Instances: "
+  el "p" $ text "Instances:"
+  ec2Instances <- textInput $ def & textInputConfig_inputType .~ "number"
+                                  & textInputConfig_initialValue .~ "0"
+  el "p" $ text "Usage"
+  let resultEc2 = ((+1) . readInt) <$> _textInput_value ec2Instances
+  dynText $ toDynText resultEc2
 
 -------
 -- S3 Properties
 -------
 s3Properties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
 s3Properties dynAttrs =
-  elDynAttr "div" ((constDyn $ idAttrs S3) <> dynAttrs) $ do
+  elDynAttr "div" ((constDyn $ idAttrs S3) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "S3"
    return ()
@@ -226,7 +253,7 @@ s3Properties dynAttrs =
 
 r53Properties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
 r53Properties dynAttrs =
-  elDynAttr "div" ((constDyn $ idAttrs R53) <> dynAttrs) $ do
+  elDynAttr "div" ((constDyn $ idAttrs R53) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "Route53"
    return ()
@@ -237,7 +264,7 @@ r53Properties dynAttrs =
 
 cfProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
 cfProperties dynAttrs =
-  elDynAttr "div" ((constDyn $ idAttrs CF) <> dynAttrs) $ do
+  elDynAttr "div" ((constDyn $ idAttrs CF) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "CloudFront"
    return ()
@@ -248,7 +275,7 @@ cfProperties dynAttrs =
 
 rdsProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
 rdsProperties dynAttrs =
-  elDynAttr "div" ((constDyn $ idAttrs RDS) <> dynAttrs) $ do
+  elDynAttr "div" ((constDyn $ idAttrs RDS) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "Amazon RDS"
    return ()
@@ -259,7 +286,7 @@ rdsProperties dynAttrs =
 
 dbProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
 dbProperties dynAttrs =
-  elDynAttr "div" ((constDyn $ idAttrs DB) <> dynAttrs) $ do
+  elDynAttr "div" ((constDyn $ idAttrs DB) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "DynamoDB"
    return ()
@@ -270,7 +297,7 @@ dbProperties dynAttrs =
 
 ecProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
 ecProperties dynAttrs =
-  elDynAttr "div" ((constDyn $ idAttrs EC) <> dynAttrs) $ do
+  elDynAttr "div" ((constDyn $ idAttrs EC) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "ElasticCache"
    return ()
@@ -281,7 +308,7 @@ ecProperties dynAttrs =
 
 cwProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
 cwProperties dynAttrs =
-  elDynAttr "div" ((constDyn $ idAttrs CW) <> dynAttrs) $ do
+  elDynAttr "div" ((constDyn $ idAttrs CW) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "CloudWatch"
    return ()
@@ -292,7 +319,7 @@ cwProperties dynAttrs =
 
 vpcProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
 vpcProperties dynAttrs =
-  elDynAttr "div" ((constDyn $ idAttrs VPC) <> dynAttrs) $ do
+  elDynAttr "div" ((constDyn $ idAttrs VPC) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "Amazon VPC"
    return ()
@@ -303,7 +330,7 @@ vpcProperties dynAttrs =
 
 lsProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
 lsProperties dynAttrs =
-  elDynAttr "div" ((constDyn $ idAttrs LS) <> dynAttrs) $ do
+  elDynAttr "div" ((constDyn $ idAttrs LS) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "Amazon LightSail"
    return ()
@@ -391,11 +418,13 @@ el "label" $ do
   
 linkAttrs :: Map.Map T.Text T.Text
 linkAttrs = ("target" =: "_blank") <> ("href" =: "http://rizilab.com")
+
 colorAttrs :: Bool -> Map.Map T.Text T.Text
 colorAttrs b = "style" =: ("color: " <> color b)
   where
     color True = "red"
     color _    = "green"
+    
 svgAttrs :: Map.Map T.Text T.Text
 svgAttrs = ("type" =: "image/svg+xml") <>
            ("data" =: "static/svg/ec2.svg") <>
@@ -410,6 +439,7 @@ bottomBar = elClass "div" "theButton" $ do
     let dynAttrs = colorAttrs <$> dynBool
     elDynAttr "h1" dynAttrs $ text "Changing color"
     return ()
+    
 rightSideBar :: MonadWidget t m => m ()
 rightSideBar = do
   rec
@@ -419,15 +449,17 @@ rightSideBar = do
     evIncr <- button "Increment"
     evDecr <- button "Decrement"
   return ()
+  
 anotherTexInput :: MonadWidget t m => m ()
 anotherTexInput = el "div" $ do
   el "h2" $ text "Simple text input"
   ti <- textInput def
   dynText $ value ti
+  
 anotherTexInput2 :: MonadWidget t m => m ()
 anotherTexInput2 = do
   el "h2" $ text "Another text sample"
-  el "h4" $ text "Mak length 14"
+  el "h4" $ text "Maks length 14"
   t1 <- textInput $ def & attributes .~ constDyn ("maxlength" =: "14")
   dynText $ _textInput_value t1
   el "h4" $ text "Initial Value"
@@ -449,6 +481,7 @@ anotherTexInput2 = do
                         & textInputConfig_initialValue .~ "0"
   dynText $ _textInput_value t6
   return ()
+  
 readingValue :: MonadWidget t m => m ()
 readingValue = do
   el "h2" $ text " Text Input - Read Value on Button Click"
@@ -473,6 +506,7 @@ readingValue = do
     t2 <- textInput $ def & setValue .~ (leftmost [ evText, "" <$ evReset])
     evReset <- button "Reset"
   return ()
+  
 testTextArea :: MonadWidget t m => m ()
 testTextArea = do
   el "h2" $ text "RGB Viewer"
@@ -483,6 +517,7 @@ testTextArea = do
   textArea $
     def & attributes .~ (styleMap <$> value  dfsRed <*> value dfsGreen <*> value dfsBlue)
   return ()
+  
 labledBox :: MonadWidget t m => T.Text -> m (TextInput t)
 labledBox lbl = el "div" $ do
   text lbl
@@ -490,6 +525,7 @@ labledBox lbl = el "div" $ do
                   & textInputConfig_initialValue .~ "0"
 styleMap :: T.Text -> T.Text -> T.Text -> Map.Map T.Text T.Text
 styleMap r g b = "style" =: mconcat ["background-color: rgb(",r,",", g, ",", b, ")"]
+
 testCheckBox :: MonadWidget t m => m ()
 testCheckBox = el "div" $ do
   el "h2" $ text "Checkbox (Out of the box)"
@@ -533,6 +569,7 @@ translate Nothing = "0"
 translate (Just Small) = "10"
 translate (Just Medium) = "50"
 translate (Just Large) = "800"
+
 dropDown :: MonadWidget t m => m ()
 dropDown = do
   el "h2" $ text "Dropdown"
