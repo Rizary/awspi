@@ -1,6 +1,7 @@
 html {
   width: 1172px;
   height: 876px;
+  font-family:Helvetica;
 }
 body {
   width: 1172px;
@@ -112,38 +113,121 @@ label > h2, h4{
 }
 
 .rightMenu .rightProp {
-  display: inline-flex;
-  flex-direction: column;
+  display: flex;
+  flex-direction: line;
   flex-wrap: wrap;
-  align-content: flex-start;
+  align-content: center;
   background: white;
   margin-left: 16px;
   margin-right: 16px;
+  margin-top: 0px;
+  margin-bottom: 0px;
   width: 266px;
   height: auto;
 }
 
-.rightMenu h4{
+.rightMenu .rightProp > h4{
   font-weight: bold;
   text-align: left;
   color: hsla(127,65%,30%,1);
+  margin-bottom: 16px;
+  margin-top: 16px;
+  flex: 1 100%;
 }
 
-.rightMenu p {
+.rightMenu .rightProp > p {
   font-size: 16px;
   text-align: left;
+  align-self: flex-start;
+  margin-bottom:0px;
+  margin-top: 8px;
+  margin-left: 0px;
+  margin-right: 8px;
+  flex: 1 50%;
 }
 
+.rightMenu .rightProp > input {
+  font-size: 12px;
+  text-align: right;
+  margin-bottom:8px;
+  margin-top: 8px;
+  align-self: flex-end;
+  margin-left: 8px;
+  margin-right: 8px;
+  flex: 1 10%;
+
+  max-width: 100px;
+  min-width: 50px;
+  max-height: 24px;
+}
+
+.rightMenu .rightProp > button {
+  font-size: 12px;
+  text-align: center;
+  margin-bottom:8px;
+  margin-top: 8px;
+  align-self: flex-end;
+  margin-left: 0px;
+  margin-right: 8px;
+  flex: 1 50%;
+  max-width: 48px;
+  min-width: 24px;
+  max-height: 24px;
+}
+
+.rightMenu select {
+  font-size: 12px;
+  text-align: right;
+  margin-bottom:8px;
+  margin-top: 8px;
+  align-self: flex-end;
+  margin-left: 8px;
+  margin-right: 8px;
+  flex: 1 10%;
+  width: 96px;
+  max-height: 24px;
+}
 
 .summaryMenu {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: line;
   flex-wrap: wrap;
   align-content: flex-start;
   background: hsla(124,96%,64%,0.3);
+  color: hsla(232,94%,53%,1);
   width: 298px;
   height: 208px;
   border-radius: 0px 0px 25px 25px;
 }
 
+.summaryMenu h2 {
+  position: relative;
+  color: hsla(232,94%,53%,1);
+  margin-top: 16px;
+  margin-left: 16px;
+  margin-right: 16px;
+  margin-bottom: 0px;
+  font-weight: bold;
+  text-align: left;
+}
 
+.summaryMenu h4 {
+  font-weight: bold;
+  text-align: left;
+  margin-left: 16px;
+  margin-right: 16px;
+  margin-top: 8px;
+  margin-bottom: 0px;
+  flex: 1 100%;
+}
+
+.summaryMenu p {
+  font-size: 16px;
+  text-align: left;
+  justify-content: flex-start;
+  margin-bottom: 8px;
+  margin-top: 8px;
+  margin-left: 16px;
+  margin-right: 16px;
+  flex: 1 50%;
+}

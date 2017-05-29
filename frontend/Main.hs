@@ -4,6 +4,7 @@ import Prelude hiding (mapM, mapM_, all, sequence)
 
 import           Control.Monad hiding (mapM, mapM_, forM, forM_, sequence)
 import           Control.Monad.Fix
+import           Control.Applicative (liftA, liftA2)
 import           Data.Map (Map)
 import qualified Data.Map                  as Map
 import           Data.Foldable
@@ -13,6 +14,7 @@ import qualified Data.Text                 as T
 import qualified Data.Text.Read            as TR
 import qualified Data.Maybe                as Maybe
 import           Control.Monad.Ref (MonadRef(..))
+import           Numeric (showFFloat)
 
 import GHCJS.DOM.Types (JSM, File, Element(..))
 
@@ -53,16 +55,16 @@ bodyElement = elClass "div" "container" $ do
 -- Menu utama pemilihan jasa AWS yang paling umum digunakan
     midM <- elClass "div" "middleMenu" $ do
              rec
-              ec2 <- serviceButton "Amazon EC2" EC2 ec2dynAttrs testText1
-              s3  <- serviceButton "Amazon S3" S3 s3dynAttrs testText1
-              r53 <- serviceButton "Route 53" R53 r53dynAttrs testText1
-              cf  <- serviceButton "CloudFront" CF cfdynAttrs testText1
-              rds <- serviceButton "Amazon RDS" RDS rdsdynAttrs testText1
-              db  <- serviceButton "DynamoDB" DB dbddynAttrs testText1
-              ec  <- serviceButton "Elastic Cache" EC ecdynAttrs testText1
-              cw  <- serviceButton "CloudWatch" CW cwdynAttrs testText1
-              vpc <- serviceButton "Amazon VPC" VPC vpcdynAttrs testText1
-              ls  <- serviceButton "Amazon Lightsail" LS lsdynAttrs testText1
+              ec2 <- serviceButton "Amazon EC2" EC2 ec2dynAttrs (theDynCost rightM 1)
+              s3  <- serviceButton "Amazon S3" S3 s3dynAttrs (theDynCost rightM 2)
+              r53 <- serviceButton "Route 53" R53 r53dynAttrs (theDynCost rightM 3)
+              cf  <- serviceButton "CloudFront" CF cfdynAttrs (theDynCost rightM 4)
+              rds <- serviceButton "Amazon RDS" RDS rdsdynAttrs (theDynCost rightM 5)
+              db  <- serviceButton "DynamoDB" DB dbddynAttrs (theDynCost rightM 6)
+              ec  <- serviceButton "Elastic Cache" EC ecdynAttrs (theDynCost rightM 7)
+              cw  <- serviceButton "CloudWatch" CW cwdynAttrs (theDynCost rightM 8)
+              vpc <- serviceButton "Amazon VPC" VPC vpcdynAttrs (theDynCost rightM 9)
+              ls  <- serviceButton "Amazon Lightsail" LS lsdynAttrs (theDynCost rightM 10)
 
               let 
 	          ec2dynAttrs = labelAttrs <$> curSelect dynSelect EC2
@@ -79,63 +81,74 @@ bodyElement = elClass "div" "container" $ do
              return dynSelect
 	     
 -- Menu Properti dari masing-masing jasa AWS yang sedang aktif
-    elClass "div" "rightMenu" $ do
-     el "h2" $ text "Properties: "
-     rec
-      ec2Prop <- ec2Properties ec2dynAttrs
-      s3Prop  <- s3Properties s3dynAttrs
-      r53Prop  <- r53Properties r53dynAttrs
-      cfProp  <- cfProperties cfdynAttrs
-      rdsProp  <- rdsProperties rdsdynAttrs
-      dbProp  <- dbProperties dbdynAttrs
-      ecProp  <- ecProperties ecdynAttrs
-      cwProp  <- cwProperties cwdynAttrs
-      vpcProp  <- vpcProperties vpcdynAttrs
-      lsProp  <- lsProperties lsdynAttrs
+    rightM <- elClass "div" "rightMenu" $ do
+               el "h2" $ text "Properties: "
+               rec
+                ec2Prop <- ec2Properties ec2dynAttrs
+                s3Prop  <- s3Properties s3dynAttrs
+                r53Prop  <- r53Properties r53dynAttrs
+                cfProp  <- cfProperties cfdynAttrs
+                rdsProp  <- rdsProperties rdsdynAttrs
+                dbProp  <- dbProperties dbdynAttrs
+                ecProp  <- ecProperties ecdynAttrs
+                cwProp  <- cwProperties cwdynAttrs
+                vpcProp  <- vpcProperties vpcdynAttrs
+                lsProp  <- lsProperties lsdynAttrs
       
-      let 
-	ec2dynAttrs = showAttrs <$> curSelect midM EC2
-	s3dynAttrs  = showAttrs <$> curSelect midM S3
-	r53dynAttrs = showAttrs <$> curSelect midM R53
-	cfdynAttrs  = showAttrs <$> curSelect midM CF
-	rdsdynAttrs = showAttrs <$> curSelect midM RDS
-	dbdynAttrs  = showAttrs <$> curSelect midM DB
-	ecdynAttrs  = showAttrs <$> curSelect midM EC
-	cwdynAttrs  = showAttrs <$> curSelect midM CW
-        vpcdynAttrs = showAttrs <$> curSelect midM VPC
-	lsdynAttrs  = showAttrs <$> curSelect midM LS
-     return ()	
- 
+                let 
+	          ec2dynAttrs = showAttrs <$> curSelect midM EC2
+	          s3dynAttrs  = showAttrs <$> curSelect midM S3
+	          r53dynAttrs = showAttrs <$> curSelect midM R53
+	          cfdynAttrs  = showAttrs <$> curSelect midM CF
+	          rdsdynAttrs = showAttrs <$> curSelect midM RDS
+	          dbdynAttrs  = showAttrs <$> curSelect midM DB
+	          ecdynAttrs  = showAttrs <$> curSelect midM EC
+	          cwdynAttrs  = showAttrs <$> curSelect midM CW
+                  vpcdynAttrs = showAttrs <$> curSelect midM VPC
+	          lsdynAttrs  = showAttrs <$> curSelect midM LS
+               return [ (1  , ec2Prop)
+	              , (2  , s3Prop )
+	              , (3  , r53Prop)
+		      , (4  , cfProp )
+		      , (5  , rdsProp)
+		      , (6  , dbProp )
+		      , (7  , ecProp )
+		      , (8  , cwProp )
+		      , (9  , vpcProp)
+		      , (10 , lsProp )
+		      ]
+	       
 -- Menu summary berupa hasil perhitungan final dari semua jasa AWS
     elClass "div" "summaryMenu" $ do
-     el "h2" $ text "Summary: "
+      let
+        resultList = (fmap . fmap) readDouble (Map.elems $ Map.fromList rightM)
+	starter = readDouble <$> (constDyn "0")
+	joined = join $ foldM foldTheCost starter resultList
+      el "h2" $ text "Summary: "
+      el "h4" $ text "Total Monthly Bill: "
+      -- This is how foldM will work:
+      --
+      -- foldM f Dynamic t 0 [Dynamic t 5, Dynamic t 6]
+      -- do
+      --   a2 <- f (Dynamic t 0) (Dynamic t 5)
+      --   a3 <- f (Dynamic t 5) (Dynamic t 6)
+      --
+      el "p" $ dynText $ (constDyn "$ ") <> (toText <$> (join $ foldM foldTheCost starter resultList))
+      el "h4" $ text "Total Hourly/Month Bill: "
+      el "p" $ dynText $ (constDyn "$ ") <> (toText <$> ((/720) <$> joined))
+
   return ()
   
-
-
------
--- Right Bar
------
-awsPropAttrs :: Map.Map T.Text T.Text
-awsPropAttrs = undefined
-
-
-serviceProperties = undefined
-
-simulateResults = undefined
-
-
------
--- Middle Menu (Icon Selector)
------
-
------
--- Summary Bar (Icon Selector)
------
-
 -----
 -- AWS Related Function
 -----
+foldTheCost :: (Num a, Reflex t) => Dynamic t a -> Dynamic t a -> Dynamic t (Dynamic t a)
+foldTheCost x y = constDyn $ (+) <$> x <*> y
+
+
+theDynCost :: (Ord k, Num k, Reflex t) => [(k, Dynamic t Text)] -> k -> Dynamic t Text
+theDynCost rightM key = Maybe.fromMaybe (constDyn $ T.pack "0") $ lookup key rightM
+
 curSelect :: Reflex t => Dynamic t (Maybe AwsIcon) -> AwsIcon -> Dynamic t Bool
 curSelect dA ic = demuxed (demux dA) (Just ic)
 
@@ -172,11 +185,6 @@ iconName awi =
 data AwsIcon = CF | CW | DB | EC2 | EC | LS | RDS | R53 | S3 | VPC
   deriving (Eq, Show, Ord)
 
-calculatedPrice = undefined
-
-blanks :: forall m. Monad m => m ()
-blanks = return ()
-
 showAttrs :: Bool -> Map.Map T.Text T.Text
 showAttrs b = "style" =: ("display: " <> display b)
   where
@@ -203,143 +211,326 @@ serviceButton label icon dynAttrs dynCost = do
     return $ icon <$ (domEvent Click ev1)
 
 
-turnToInt :: TR.Reader Int -> Text -> Int
+turnToInt :: Num a => TR.Reader a -> Text -> a
 turnToInt = (theValue .)
   where
     theValue (Right (v,_)) = v
     theValue (Left _)      = 0
 
-readInt :: Text -> Int
-readInt = turnToInt TR.decimal
+readDouble :: Text -> Double
+readDouble = turnToInt TR.double
 
-toDynText :: (Reflex t, Show a) => Dynamic t a -> Dynamic t Text
-toDynText = ((T.pack . show) <$>)
+showPrecise :: RealFloat a => a -> String
+showPrecise x = showFFloat Nothing x ""
+
+toDynText :: (Reflex t, Show a, RealFloat a) => Dynamic t a -> Dynamic t Text
+toDynText = ((T.pack . showPrecise) <$>)
+
+toText :: (Show a, RealFloat a) => a -> Text
+toText = (T.pack . showPrecise)
+
+ddUsage :: Map.Map Int T.Text
+ddUsage = Map.fromList [(1,"Hours/Day"), (2, "Hours/Week"), (3, "Hours/Month")]
+
+ddType :: Map.Map Int T.Text
+ddType = Map.fromList [(1,"t2.micro"), (2, "t2.small"), (3, "t2.medium"), (4, "t2.large")]
+
+ddStorage :: Map.Map Int T.Text
+ddStorage = Map.fromList [(1,"GB"), (2, "TB"), (3, "PB")]
+
+ddPerMonth:: Map.Map Int T.Text
+ddPerMonth = Map.fromList [(1,"Per Day"), (2, "Per Week"), (3, "Per Month")]
 
 --- properties attribut dari setiap service
+
+
 
 -------
 -- EC2 Properties
 -------
-ec2Properties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
-ec2Properties dynAttrs =
-  elDynAttr "div" ((constDyn $ idAttrs EC2) <> dynAttrs <> rightClassAttrs) $ do
-   rec
-    ec2Instance   
-   return ()
 
-ec2Instance :: (Reflex t, MonadWidget t m) => m ()
-ec2Instance = do
+calcEC2Instance :: Int -> Text -> Text
+calcEC2Instance key y =
+  case key of
+    1 -> toText $ (*0.012) (readDouble y)
+    2 -> toText $ (*0.023) (readDouble y)
+    3 -> toText $ (*0.047) (readDouble y)
+    4 -> toText $ (*0.094) (readDouble y)
+
+
+calcEC2Usage :: Int -> Text -> Text
+calcEC2Usage key y =
+  case key of
+    1 -> toText $ (*30) (readDouble y)
+    2 -> toText $ (*4)  (readDouble y)
+    3 -> toText $ (*1)  (readDouble y)
+
+-------------------------------------------
+
+ec2Properties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m (Dynamic t Text)
+ec2Properties dynAttrs = do
+  result <- elDynAttr "div" ((constDyn $ idAttrs EC2) <> dynAttrs <> rightClassAttrs) $ do
+             rec
+              ec2Inst <- ec2Instance evReset
+	      evReset <- button "Reset"
+             return $ ec2Inst
+  return $ result
+  
+ec2Instance :: (Reflex t, MonadWidget t m) => Event t a -> m (Dynamic t Text)
+ec2Instance evReset = do
+ rec
+  let
+      resultEc2Inst  = calcEC2Instance <$> (value ddEc2Type) <*> (value ec2Instances) 
+      resultEc2Usage = calcEC2Usage <$> (value ddEc2Usage) <*> (value ec2Usage)
+      resultEc2      = (*) <$> (readDouble <$> resultEc2Inst)
+                           <*> (readDouble <$> resultEc2Usage)
+			
   el "h4" $ text "EC2 Instances: "
   el "p" $ text "Instances:"
   ec2Instances <- textInput $ def & textInputConfig_inputType .~ "number"
                                   & textInputConfig_initialValue .~ "0"
-  el "p" $ text "Usage"
-  let resultEc2 = ((+1) . readInt) <$> _textInput_value ec2Instances
-  dynText $ toDynText resultEc2
+				  & setValue .~ (leftmost ["0" <$ evReset])
+  el "p" $ text "Usage:"
+  ec2Usage <- textInput $ def & textInputConfig_inputType .~ "number"
+                              & textInputConfig_initialValue .~ "0"
+		              & setValue .~ (leftmost ["0" <$ evReset])
+  ddEc2Usage <- dropdown 1 (constDyn ddUsage) def
+			      
+  el "p" $ text "Type:"
+  ddEc2Type <- dropdown 1 (constDyn ddType) def
+  
+ return $ toDynText resultEc2
 
 -------
 -- S3 Properties
 -------
-s3Properties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
-s3Properties dynAttrs =
-  elDynAttr "div" ((constDyn $ idAttrs S3) <> dynAttrs <> rightClassAttrs) $ do
-   rec
-    el "p" $ text "S3"
-   return ()
+
+calcS3StdStore :: Text -> Int -> Text -> Text -> Text
+calcS3StdStore store key pcpl go =
+  toText $
+    calcStore (storeKey (readDouble store) key)
+              (readDouble pcpl)
+	      (readDouble go)
+  where
+    calcStore result pcpl go = result + (0.000005 * pcpl) + (0.0000004 * go)
+    storeKey str k1 = case k1 of
+      1 -> results' str
+      2 -> results' (str * 1000)
+      3 -> results' (str * 1000000)
+     where
+        results' gb
+	  | gb <= 50000.0                   = 0.0256 * gb
+	  | gb > 50000.0 && gb <= 500000.0  = (0.0256 * 50000.0) + (0.024 * (gb - 50000.0))
+	  | otherwise                       =   (0.0256 * 50000.0)
+	                                      + (0.024 * 450000.0)
+					      + (0.023 * (gb - 500000.0))
+	  
+
+calcS3StoreMan :: Text -> Int -> Text -> Int -> Text -> Int -> Text
+calcS3StoreMan invt ikey anly akey objc okey =
+  toText $  (inventory invt ikey) + (analytics anly akey) + (objectTag objc okey)
+  where
+    inventory i key = case key of
+      1 -> (*0.09 ) (readDouble i)
+      2 -> (*0.02) (readDouble i)
+      3 -> (*0.01) (readDouble i)
+    analytics i key = case key of
+      1 -> (*3.05) (readDouble i)
+      2 -> (*0.43) (readDouble i)
+      3 -> (*0.10) (readDouble i)
+    objectTag i key = case key of
+      1 -> (*0.31 ) (readDouble i)
+      2 -> (*0.05) (readDouble i)
+      3 -> (*0.01) (readDouble i)
+  
+--------------------
+
+s3Properties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) ->  m (Dynamic t Text)
+s3Properties dynAttrs = do
+  result <- elDynAttr "div" ((constDyn $ idAttrs S3) <> dynAttrs <> rightClassAttrs) $ do
+             rec
+              s3StdS  <- s3StdStorage evReset
+	      evReset <- button "Reset"
+             return $ s3StdS
+  return $ result
+
+s3StdStorage :: (Reflex t, MonadWidget t m) => Event t a -> m (Dynamic t Text)
+s3StdStorage evReset = do
+ rec
+  let
+      resultS3StdStore  = calcS3StdStore  <$> (value s3StdStore)
+                                          <*> (value ddS3StdStore)
+					  <*> (value s3PcplReq)
+					  <*> (value s3GoReq)
+      resultS3StorMan   = calcS3StoreMan  <$> (value s3StoreManInv)
+                                          <*> (value ddS3StoreManInv)
+					  <*> (value s3StoreManAnl)
+					  <*> (value ddS3StoreManAnl)
+					  <*> (value s3StoreManObj)
+					  <*> (value ddS3StoreManObj)
+      resultS3Store     = (+) <$> (readDouble <$> resultS3StdStore)
+                              <*> (readDouble <$> resultS3StorMan)
+			      
+  -- Standard Storage Properties			
+  el "h4" $ text "Standard Storage: "
+  el "p" $ text "Storage:"
+  s3StdStore <- textInput $ def & textInputConfig_inputType .~ "number"
+                                  & textInputConfig_initialValue .~ "0"
+				  & setValue .~ (leftmost ["0" <$ evReset])
+  ddS3StdStore <- dropdown 1 (constDyn ddStorage) def
+  
+  el "p" $ text "PUT/COPY/POST/LIST Request:"
+  s3PcplReq <- textInput $ def & textInputConfig_inputType .~ "number"
+                               & textInputConfig_initialValue .~ "0"
+		               & setValue .~ (leftmost ["0" <$ evReset])
+  el "p" $ text "Request"
+  
+  el "p" $ text "GET and Other Request:"
+  s3GoReq <- textInput $ def & textInputConfig_inputType .~ "number"
+                             & textInputConfig_initialValue .~ "0"
+		             & setValue .~ (leftmost ["0" <$ evReset])
+  el "p" $ text "Request"
+  
+  -- Storage Management Properties
+  el "h4" $ text "Storage Management: "
+  el "p" $ text "Inventory"
+  el "p" $ text "(Million Objects):"
+
+  s3StoreManInv <- textInput $ def & textInputConfig_inputType .~ "number"
+                                  & textInputConfig_initialValue .~ "0"
+				  & setValue .~ (leftmost ["0" <$ evReset])
+  ddS3StoreManInv <- dropdown 3 (constDyn ddPerMonth) def
+
+  el "p" $ text "Analytics"
+  el "p" $ text "(Million Objects):"
+
+  s3StoreManAnl <- textInput $ def & textInputConfig_inputType .~ "number"
+                                  & textInputConfig_initialValue .~ "0"
+				  & setValue .~ (leftmost ["0" <$ evReset])
+  ddS3StoreManAnl <- dropdown 3 (constDyn ddPerMonth) def
+
+  el "p" $ text "Object Tagging"
+  el "p" $ text "(10,000 Tags):"
+
+  s3StoreManObj <- textInput $ def & textInputConfig_inputType .~ "number"
+                                  & textInputConfig_initialValue .~ "0"
+				  & setValue .~ (leftmost ["0" <$ evReset])
+  ddS3StoreManObj <- dropdown 3 (constDyn ddPerMonth) def
+  
+ return $ toDynText resultS3Store
 
 -------
 -- Route53 Properties
 -------
 
-r53Properties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
-r53Properties dynAttrs =
-  elDynAttr "div" ((constDyn $ idAttrs R53) <> dynAttrs <> rightClassAttrs) $ do
-   rec
-    el "p" $ text "Route53"
-   return ()
-   
+r53Properties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m (Dynamic t Text)
+r53Properties dynAttrs = do
+  result <- elDynAttr "div" ((constDyn $ idAttrs R53) <> dynAttrs <> rightClassAttrs) $ do
+             rec
+              r53HostZ <- r53HostedZone evReset
+	      evReset <- button "Reset"
+             return $ r53HostZ
+  return $ result
+  
+r53HostedZone :: (Reflex t, MonadWidget t m) => Event t a -> m (Dynamic t Text)
+r53HostedZone evReset = do
+ rec
+  let
+      resultR53Hz = _textInput_value r53Hz
+      resultR53Tf = _textInput_value r53Tf
+      resultR53   = (+) <$> (readDouble <$> resultR53Hz)
+                        <*> (readDouble <$> resultR53Tf)
+  
+  el "h4" $ text "Hosted Zone: "
+  el "p" $ text "Hosted Zone:"
+  r53Hz <- textInput $ def & textInputConfig_inputType .~ "number"
+                           & textInputConfig_initialValue .~ "0"
+			   & setValue .~ (leftmost ["0" <$ evReset])
+			   
+  el "p" $ text "Traffic Flow:"
+  r53Tf <- textInput $ def & textInputConfig_inputType .~ "number"
+                           & textInputConfig_initialValue .~ "0"
+			   & setValue .~ (leftmost ["0" <$ evReset])			   
+ return $ toDynText resultR53
+  
 -------
 -- CloudFront Properties
 -------
 
-cfProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+cfProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m (Dynamic t Text)
 cfProperties dynAttrs =
   elDynAttr "div" ((constDyn $ idAttrs CF) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "CloudFront"
-   return ()
+   return $ constDyn (T.pack "0")
    
 -------
 -- Amazon RDS Properties
 -------
 
-rdsProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+rdsProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m (Dynamic t Text)
 rdsProperties dynAttrs =
   elDynAttr "div" ((constDyn $ idAttrs RDS) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "Amazon RDS"
-   return ()
+   return $ constDyn (T.pack "0")
    
 -------
 -- DynamoDB Properties
 -------
 
-dbProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+dbProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m (Dynamic t Text)
 dbProperties dynAttrs =
   elDynAttr "div" ((constDyn $ idAttrs DB) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "DynamoDB"
-   return ()
+   return $ constDyn (T.pack "0")
    
 -------
 -- Elastic Cache Properties
 -------
 
-ecProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+ecProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m (Dynamic t Text)
 ecProperties dynAttrs =
   elDynAttr "div" ((constDyn $ idAttrs EC) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "ElasticCache"
-   return ()
+   return $ constDyn (T.pack "0")
    
 -------
 -- CloudWatch Properties
 -------
 
-cwProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+cwProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m (Dynamic t Text)
 cwProperties dynAttrs =
   elDynAttr "div" ((constDyn $ idAttrs CW) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "CloudWatch"
-   return ()
+   return $ constDyn (T.pack "0")
    
 -------
 -- Amazon VPC Properties
 -------
 
-vpcProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+vpcProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m (Dynamic t Text)
 vpcProperties dynAttrs =
   elDynAttr "div" ((constDyn $ idAttrs VPC) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "Amazon VPC"
-   return ()
+   return $ constDyn (T.pack "0")
    
 -------
 -- Amazon LightSail Properties
 -------
 
-lsProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m ()
+lsProperties :: (Reflex t, MonadWidget t m) => Dynamic t (Map.Map T.Text T.Text) -> m (Dynamic t Text)
 lsProperties dynAttrs =
   elDynAttr "div" ((constDyn $ idAttrs LS) <> dynAttrs <> rightClassAttrs) $ do
    rec
     el "p" $ text "Amazon LightSail"
-   return ()
+   return $ constDyn (T.pack "0")
 
 --------
-
-testText1 :: Reflex t => Dynamic t T.Text
-testText1 = constDyn "0"
-
 
 {-|
 el "label" $ do
@@ -578,10 +769,13 @@ dropDown = do
   el "p" blank
   let selItem = result <$> value dd
   dynText selItem
+  
 countries :: Map.Map Int T.Text
 countries = Map.fromList [(1,"France"), (2, "Switzerland"), (3, "Germany"), (4, "Italy"), (5, "USA")]
+
 result :: Int -> T.Text
 result key = "You selected: " <> Maybe.fromJust (Map.lookup key countries)
+
 rangeWidget :: MonadWidget t m => m ()
 rangeWidget = do
   el "h2" $ text "Range Input"
