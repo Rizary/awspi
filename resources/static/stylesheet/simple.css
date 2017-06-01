@@ -31,7 +31,7 @@ body {
   height: 876px;
 }
 
-label {
+.middleMenu label {
   position: relative;
   display: inline-flex;
   flex-direction: column;
@@ -43,15 +43,15 @@ label {
   vertical-align: left;
 }
 
-label:hover {
+.middleMenu label:hover {
   background-color: hsla(171,100%,84%,1);
 
 }
-label > img, h2 {
+.middleMenu label > img, h2 {
   margin-left: 32px;
 }
 
-label > img {
+.middleMenu label > img {
   width: 81px;
   height: 80px;
   order: 1;
@@ -63,7 +63,7 @@ label > img {
 }
 
 
-label > h2 {
+.middleMenu label > h2 {
   font-weight: bold;
   order: 2;
   flex: 0 1 0%;
@@ -71,7 +71,7 @@ label > h2 {
   white-space: nowrap;
 }
 
-label > h4 {
+.middleMenu label > h4 {
   color: hsla(339,80%,60%,1);
   margin-top: -8px;
   margin-left: 32px;
@@ -79,7 +79,7 @@ label > h4 {
   flex: 0 1 0%;
 }
 
-label > h2, h4{
+.middleMenu label > h2, h4{
   display: absolute;
   position: static;
   vertical-align: left;
@@ -117,7 +117,7 @@ label > h2, h4{
   flex-direction: line;
   flex-wrap: wrap;
   align-content: center;
-  background: white;
+  background: transparent;
   margin-left: 16px;
   margin-right: 16px;
   margin-top: 0px;
@@ -187,6 +187,30 @@ label > h2, h4{
   width: 96px;
   max-height: 24px;
 }
+
+.rightMenu .rightProp #LS > input {
+  display: inline-flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-end;
+  font-size: 12px;
+  text-align: right;
+  margin-bottom: 0px;
+  margin-top: 0px;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.rightMenu .rightProp .lsRad > p {
+  font-size: 12px;
+  text-align: justify;
+  margin-bottom: 0px;
+  margin-top: 0px;
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
+
 
 .summaryMenu {
   display: inline-flex;

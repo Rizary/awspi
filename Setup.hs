@@ -15,7 +15,6 @@ guiApps = [
       , "resources/index.html"
       , "resources/static/svg/ec2.svg"
       , "resources/static/svg/AmazonCloudFront.png"
-      , "resources/static/svg/AmazonCloudWatch.png"
       , "resources/static/svg/AmazonDynamoDB.png"
       , "resources/static/svg/AmazonEC2.png"
       , "resources/static/svg/AmazonElasticCache.png"
